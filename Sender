@@ -1,3 +1,4 @@
+//Sender
 /*
   Rui Santos
   Complete project details at https://RandomNerdTutorials.com/esp-now-esp32-arduino-ide/
@@ -62,23 +63,37 @@ void setup() {
     Serial.println("Failed to add peer");
     return;
   }
+  
+  //testing a button activated sender
+  int inputPin = 17;
+  int powerPin = 16;
+  
+  pinMode(16, OUTPUT);
+  digitalWrite(16, HIGH);
+  pinMode(17, INPUT_PULLUP);
+  
 }
  
 void loop() {
-  // Set values to send
-  strcpy(myData.a, "Testing");
-  myData.b = random(1,20);
-  myData.c = 1.2;
-  myData.d = false;
   
-  // Send message via ESP-NOW
-  esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
-   
-  if (result == ESP_OK) {
-    Serial.println("Sent with success");
+  
+  if (digitalRead(17) == HIGH){
+    
+    // Set values to send
+    strcpy(myData.a, "Testing");
+    myData.b = random(1,20);
+    myData.c = 1.2;
+    myData.d = false;
+    
+    // Send message via ESP-NOW
+    esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
+    
+    if (result == ESP_OK) {
+      Serial.println("Sent with success");
+    }
+    else {
+      Serial.println("Error sending the data");
+    }
+    //delay();
   }
-  else {
-    Serial.println("Error sending the data");
-  }
-  //delay();
 }
