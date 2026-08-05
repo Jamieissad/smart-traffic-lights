@@ -9,7 +9,7 @@
 
 
 // REPLACE WITH THE MAC Address of your receiver 
-uint8_t broadcastAddress[] = {0x44, 0x1d, 0x64, 0xf6, 0xac, 0x44};
+uint8_t broadcastAddress[] =  {0x44, 0x1d, 0x64, 0xf6, 0xac, 0x44};
 
 // Define variables to store items to be sent
 String initPassword;
@@ -54,10 +54,13 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   memcpy(&incomingReadings, incomingData, sizeof(incomingReadings));
   Serial.print("Bytes received: ");
   Serial.println(len);
-  incomingConfirmPassword = incomingReadings.confPass;// change temp to whatever name is in structure (line 26 now)
+  incomingConfirmPassword = incomingReadings.confPass;
 
 }
- 
+
+
+
+
 void setup() {
   // Init Serial Monitor
   Serial.begin(115200);
@@ -87,13 +90,23 @@ void setup() {
   }
   // Register for a callback function that will be called when data is received
   esp_now_register_recv_cb(esp_now_recv_cb_t(OnDataRecv));
+
+  //button pins
+  pinMode(16, OUTPUT);
+  digitalWrite(16, HIGH);
+  pinMode(17, INPUT_PULLUP);
+
 }
  
+
+
 void loop() {
 
   // Set values to send
   sendingReadings.initPass = "qwerty1234";
   sendingReadings.confPass = "asdf5678";
+
+if (digitalRead(17) == HIGH){
 
   // Send message via ESP-NOW
   esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &sendingReadings, sizeof(sendingReadings));
@@ -105,17 +118,19 @@ void loop() {
     Serial.println("Error sending the data");
   }
 
-  displayOnSerial();
-  delay(10000);
 }
+  
 
 
+  
+  delay(1000);
+}
 
 
 void displayOnSerial(){
 
   // Display Readings in Serial Monitor
   Serial.print("Confirmation recieved");
-
+  Serial.print(random(1,999));
   Serial.println();
 }
