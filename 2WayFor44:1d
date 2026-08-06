@@ -8,6 +8,15 @@
 #include <WiFi.h>
 
 
+  //set LED pins
+  int redPin = 17;
+  int yellowPin = 18;
+  int greenPin = 19;
+
+  //set ticks for normal operations
+  int tick = 0;
+
+
 // REPLACE WITH THE MAC Address of your receiver 
 uint8_t broadcastAddress[] = {0x84, 0x1f, 0xe8, 0x1b, 0x39, 0x70};
 
@@ -92,8 +101,19 @@ void setup() {
   }
   // Register for a callback function that will be called when data is received
   esp_now_register_recv_cb(esp_now_recv_cb_t(OnDataRecv));
+
+
+
+  //set the LED pins to output
+  pinMode(redPin, OUTPUT);
+  pinMode(yellowPin, OUTPUT);
+  pinMode(greenPin, OUTPUT);
+
+
 }
- 
+
+
+
 void loop() {
 
   // Set values to send
@@ -101,24 +121,84 @@ void loop() {
   sendingReadings.confPass = "asdf5678";
 
 
-if (incomingPassword == "qwerty1234"){
- 
-  // Send message via ESP-NOW
-  esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &sendingReadings, sizeof(sendingReadings));
-   
-  if (result == ESP_OK) {
-    Serial.println("Sent with success");
-  }
-  else {
-    Serial.println("Error sending the data");
-  }
-}
+  if (incomingPassword == "qwerty1234"){
   
-  displayOnSerial();
+    // Send message via ESP-NOW
+    esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &sendingReadings, sizeof(sendingReadings));
+    
+    if (result == ESP_OK) {
+      Serial.println("Sent with success");
+    }
+    else {
+      Serial.println("Error sending the data");
+    }
+  
+    incomingPassword = ":p";
+    disco();
+    Serial.println("Disco initiated");
+  } else {
+    norm();
+  }
+  
+
   delay(1000);
+  tick++;
+  
 }
 
+void disco(){
+  //turn green
+  digitalWrite(redPin, LOW);
+  digitalWrite(yellowPin, LOW);
+  digitalWrite(greenPin, HIGH);
+  //wait 20secs (changed to 5 for testing)
+  delay(5000);
+  //turn yellow
+  digitalWrite(redPin, LOW);
+  digitalWrite(yellowPin, HIGH);
+  digitalWrite(greenPin, LOW);
+  //wait 5secs (changed to 2 for testing)
+  delay(2000);
+  //turn red
+  digitalWrite(redPin, HIGH);
+  digitalWrite(yellowPin, LOW);
+  digitalWrite(greenPin, LOW);
+  incomingPassword = ":p";
+  tick = 18;
+}
 
+void norm(){
+  
+  /*
+  How it should work:
+  Green for 20 secs, Yellow for 5 secs, Red for 10 secs, then reset.
+  Then reset tick time.
+  If interrupted by disco function, time will be set to a few seconds before yellow after function is done.
+  */
+
+  Serial.print("tick: ");
+  Serial.print(tick);
+
+  if (tick <= 20){ //if time <= 20 secs
+    //turn green
+    digitalWrite(redPin, LOW);
+    digitalWrite(yellowPin, LOW);
+    digitalWrite(greenPin, HIGH);
+  } else if (tick <= 25){ //if time <= 25 secs
+    //turn yellow
+    digitalWrite(redPin, LOW);
+    digitalWrite(yellowPin, HIGH);
+    digitalWrite(greenPin, LOW);
+  } else if (tick <= 30){ //if time <= 30 secs
+    //turn red
+    digitalWrite(redPin, HIGH);
+    digitalWrite(yellowPin, LOW);
+    digitalWrite(greenPin, LOW);
+  } else if (tick <= 40){
+    tick = 0;
+  }
+
+}
 
 
 void displayOnSerial(){
