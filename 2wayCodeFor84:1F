@@ -7,6 +7,7 @@
 #include <esp_now.h>
 #include <WiFi.h>
 
+bool buttonPressed = false;
 
 // REPLACE WITH THE MAC Address of your receiver 
 uint8_t broadcastAddress[] =  {0x44, 0x1d, 0x64, 0xf6, 0xac, 0x44};
@@ -55,6 +56,10 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   Serial.print("Bytes received: ");
   Serial.println(len);
   incomingConfirmPassword = incomingReadings.confPass;
+  if (incomingConfirmPassword == "asdf5678"){
+    buttonPressed = false;
+    Serial.println("Conformation Recieved and Button Value Reset");
+  }
 
 }
 
@@ -95,6 +100,7 @@ void setup() {
   pinMode(16, OUTPUT);
   digitalWrite(16, HIGH);
   pinMode(17, INPUT_PULLUP);
+  
 
 }
  
@@ -106,23 +112,23 @@ void loop() {
   sendingReadings.initPass = "qwerty1234";
   sendingReadings.confPass = "asdf5678";
 
-if (digitalRead(17) == HIGH){
-
-  // Send message via ESP-NOW
-  esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &sendingReadings, sizeof(sendingReadings));
-   
-  if (result == ESP_OK) {
-    Serial.println("Sent with success");
-  }
-  else {
-    Serial.println("Error sending the data");
+  if (digitalRead(17) == LOW){
+    buttonPressed = true;
   }
 
-}
-  
+  if (buttonPressed == true) {
+    // Send message via ESP-NOW
+    esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &sendingReadings, sizeof(sendingReadings));
+    
+    if (result == ESP_OK) {
+      Serial.println("Sent with success");
+    }
+    else {
+      Serial.println("Error sending the data");
+    }
 
+  }
 
-  
   delay(1000);
 }
 
