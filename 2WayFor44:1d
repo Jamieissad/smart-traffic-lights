@@ -152,6 +152,7 @@ void disco(){
   digitalWrite(yellowPin, LOW);
   digitalWrite(greenPin, HIGH);
   //wait 20secs (changed to 5 for testing)
+  /*
   delay(5000);
   //turn yellow
   digitalWrite(redPin, LOW);
@@ -163,6 +164,8 @@ void disco(){
   digitalWrite(redPin, HIGH);
   digitalWrite(yellowPin, LOW);
   digitalWrite(greenPin, LOW);
+  */
+  
   incomingPassword = ":p";
   tick = 18;
 }
@@ -177,7 +180,7 @@ void norm(){
   */
 
   Serial.print("tick: ");
-  Serial.print(tick);
+  Serial.println(tick);
 
   if (tick <= 20){ //if time <= 20 secs
     //turn green
