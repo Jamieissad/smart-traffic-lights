@@ -1,5 +1,6 @@
 /*
   Rui Santos & Sara Santos - Random Nerd Tutorials
+  Bastardized By James Kuiper and Seeley Cath
   Complete project details at https://RandomNerdTutorials.com/esp-now-two-way-communication-esp32/
   Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files.
   The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
@@ -8,6 +9,11 @@
 #include <WiFi.h>
 
 bool buttonPressed = false;
+int buzzerPin = 2;
+//time buzzer buzzes in secs
+int buzzerLength = 2; 
+
+
 
 // REPLACE WITH THE MAC Address of your receiver 
 uint8_t broadcastAddress[] =  {0x44, 0x1d, 0x64, 0xf6, 0xac, 0x44};
@@ -59,10 +65,23 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   if (incomingConfirmPassword == "asdf5678"){
     buttonPressed = false;
     Serial.println("Conformation Recieved and Button Value Reset");
+    tone(buzzerPin, 523);
+    delay(buzzerLength*1000);
+    noTone(buzzerPin);
   }
 
 }
-
+/*
+  note  frequency
+  c     262 Hz
+  d     294 Hz
+  e     330 Hz
+  f     349 Hz
+  g     392 Hz
+  a     440 Hz
+  b     494 Hz
+  C     523 Hz
+*/
 
 
 
@@ -100,7 +119,7 @@ void setup() {
   pinMode(16, OUTPUT);
   digitalWrite(16, HIGH);
   pinMode(17, INPUT_PULLUP);
-  
+  pinMode(buzzerPin, OUTPUT);
 
 }
  
@@ -114,6 +133,7 @@ void loop() {
 
   if (digitalRead(17) == LOW){
     buttonPressed = true;
+
   }
 
   if (buttonPressed == true) {
