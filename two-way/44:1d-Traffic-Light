@@ -58,8 +58,6 @@ esp_now_peer_info_t peerInfo;
 
 // Callback when data is sent
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
-  Serial.print("\r\nLast Packet Send Status:\t");
-  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
   if (status ==0){
     success = "Delivery Success :)";
   }
@@ -71,12 +69,6 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
 // Callback when data is received
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   memcpy(&incomingReadings, incomingData, sizeof(incomingReadings));
-  //Serial.print("Bytes received: ");
-  //Serial.println(len);
-  //Serial.println("initPass: ");
-  Serial.println(incomingReadings.initPass);
-  //Serial.println("confPass: ");
-  //Serial.println(incomingReadings.confPass);
 
   incomingPassword = incomingReadings.initPass;
 
@@ -91,7 +83,6 @@ void setup() {
 
   // Init ESP-NOW
   if (esp_now_init() != ESP_OK) {
-    Serial.println("Error initializing ESP-NOW");
     return;
   }
 
@@ -106,7 +97,6 @@ void setup() {
   
   // Add peer        
   if (esp_now_add_peer(&peerInfo) != ESP_OK){
-    Serial.println("Failed to add peer");
     return;
   }
   // Register for a callback function that will be called when data is received
@@ -133,24 +123,15 @@ void loop() {
 
   if (incomingPassword != "-1"){
     LCG(curTerm);
-    Serial.println("curTerm is:  ");
-    Serial.print(curTerm);
   }
   if (incomingPassword == String(curTerm, 24)){
   
     // Send message via ESP-NOW
     esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &sendingReadings, sizeof(sendingReadings));
     
-    if (result == ESP_OK) {
-      //Serial.println("Sent with success");
-    }
-    else {
-      //Serial.println("Error sending the data");
-    }
   
     incomingPassword = "-1";
     disco();
-    //Serial.println("Disco initiated");
   } else {
     norm();
   }
@@ -194,9 +175,6 @@ void norm(){
   If interrupted by disco function, time will be set to a few seconds before yellow after function is done.
   */
 
-  //Serial.print("tick: ");
-  //Serial.println(tick);
-
   if (tick <= 20){ //if time <= 20 secs
     //turn green
     digitalWrite(redPin, LOW);
@@ -228,10 +206,3 @@ void LCG(int prev_term){
 
 }
 
-void displayOnSerial(){
-
-  // Display Readings in Serial Monitor
-  Serial.print("Confirmation recieved");
-
-  Serial.println();
-}
