@@ -136,7 +136,7 @@ void loop() {
     Serial.println("curTerm is:  ");
     Serial.print(curTerm);
   }
-  if (incomingPassword == String(curTerm)){
+  if (incomingPassword == String(curTerm, 24)){
   
     // Send message via ESP-NOW
     esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &sendingReadings, sizeof(sendingReadings));
@@ -227,8 +227,6 @@ void LCG(int prev_term){
   curTerm = (mul * prev_term + off) % modulo;
 
 }
-
-
 
 void displayOnSerial(){
 
