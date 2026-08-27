@@ -4,6 +4,15 @@
   Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files.
   The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
+
+/*
+ _____ ____      _    _____ _____ ___ ____   _     ___ ____ _   _ _____ 
+|_   _|  _ \    / \  |  ___|  ___|_ _/ ___| | |   |_ _/ ___| | | |_   _|
+  | | | |_) |  / _ \ | |_  | |_   | | |     | |    | | |  _| |_| | | |  
+  | | |  _ <  / ___ \|  _| |  _|  | | |___  | |___ | | |_| |  _  | | |  
+  |_| |_| \_\/_/   \_\_|   |_|   |___\____| |_____|___\____|_| |_| |_|  
+*/
+
 #include <esp_now.h>
 #include <WiFi.h>
 
@@ -21,11 +30,12 @@
 uint8_t broadcastAddress[] = {0x84, 0x1f, 0xe8, 0x1b, 0x39, 0x70};
 
 // Define variables to store items to be sent
+int curTerm = 0;
 String initPassword;
 String confirmPassword;
 
 // Define variables to store incoming items
-String incomingPassword;
+String incomingPassword = "-1";
 
 // Variable to store if sending data was successful
 String success;
@@ -61,12 +71,12 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
 // Callback when data is received
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   memcpy(&incomingReadings, incomingData, sizeof(incomingReadings));
-  Serial.print("Bytes received: ");
-  Serial.println(len);
-  Serial.println("initPass: ");
+  //Serial.print("Bytes received: ");
+  //Serial.println(len);
+  //Serial.println("initPass: ");
   Serial.println(incomingReadings.initPass);
-  Serial.println("confPass: ");
-  Serial.println(incomingReadings.confPass);
+  //Serial.println("confPass: ");
+  //Serial.println(incomingReadings.confPass);
 
   incomingPassword = incomingReadings.initPass;
 
@@ -121,21 +131,26 @@ void loop() {
   sendingReadings.confPass = "asdf5678";
 
 
-  if (incomingPassword == "qwerty1234"){
+  if (incomingPassword != "-1"){
+    LCG(curTerm);
+    Serial.println("curTerm is:  ");
+    Serial.print(curTerm);
+  }
+  if (incomingPassword == String(curTerm)){
   
     // Send message via ESP-NOW
     esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &sendingReadings, sizeof(sendingReadings));
     
     if (result == ESP_OK) {
-      Serial.println("Sent with success");
+      //Serial.println("Sent with success");
     }
     else {
-      Serial.println("Error sending the data");
+      //Serial.println("Error sending the data");
     }
   
-    incomingPassword = ":p";
+    incomingPassword = "-1";
     disco();
-    Serial.println("Disco initiated");
+    //Serial.println("Disco initiated");
   } else {
     norm();
   }
@@ -166,7 +181,7 @@ void disco(){
   digitalWrite(greenPin, LOW);
   */
   
-  incomingPassword = ":p";
+  incomingPassword = "-1";
   tick = 18;
 }
 
@@ -179,8 +194,8 @@ void norm(){
   If interrupted by disco function, time will be set to a few seconds before yellow after function is done.
   */
 
-  Serial.print("tick: ");
-  Serial.println(tick);
+  //Serial.print("tick: ");
+  //Serial.println(tick);
 
   if (tick <= 20){ //if time <= 20 secs
     //turn green
@@ -202,6 +217,17 @@ void norm(){
   }
 
 }
+
+void LCG(int prev_term){
+  int off = 10;
+  int modulo = pow(2,16) + 1;
+  int mul = 170;
+
+
+  curTerm = (mul * prev_term + off) % modulo;
+
+}
+
 
 
 void displayOnSerial(){
